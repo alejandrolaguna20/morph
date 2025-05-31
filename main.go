@@ -1,16 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/alejandrolaguna20/morph/handlers"
 )
 
-func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, morph!\n")
-}
-
 func main() {
-	fmt.Println("hello, morph")
-	http.HandleFunc("/test", helloWorldHandler)
+	http.HandleFunc("/hello", handlers.HelloWorldHandler)
 	http.ListenAndServe(":8080", nil)
 }
