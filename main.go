@@ -1,12 +1,18 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/alejandrolaguna20/morph/handlers"
 )
 
-func main() {
+func handlersSetup() {
 	http.HandleFunc("/hello", handlers.HelloWorldHandler)
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/url", handlers.PostShortenUrlHandler)
+}
+
+func main() {
+	handlersSetup()
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
