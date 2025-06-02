@@ -1,12 +1,16 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/alejandrolaguna20/morph/handlers"
+	_ "github.com/go-sql-driver/mysql"
 	dotenv "github.com/joho/godotenv"
 )
 
@@ -30,6 +34,30 @@ func getEnvOrFatal(s string) string {
 		log.Fatalf("Environment variable [%s] not set", s)
 	}
 	return value
+}
+
+func connectToDatabase(env Env) (*sql.DB, error) {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		env.DatabaseUser,
+		env.DatabasePassword,
+		env.DatabaseHost,
+		env.DatabasePort,
+		env.DatabaseName)
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open database: %w", err)
+	}
+
+	if err := db.Ping(); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed to ping database: %w", err)
+	}
+
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
+	return db, nil
 }
 
 func loadEnv() Env {
