@@ -13,7 +13,14 @@ import (
 func main() {
 	s := state.LoadState()
 
-	handlers.HandlersSetup()
+	q, err := s.Database.Query("SELECT * FROM urls")
+	defer q.Close()
+
+	if err != nil {
+		log.Fatal("A connection could not be made")
+	}
+
+	handlers.HandlersSetup(&s)
 
 	portString := ":" + strconv.Itoa(s.Env.ServerPort)
 	log.Fatal(http.ListenAndServe(portString, nil))

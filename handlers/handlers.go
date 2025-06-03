@@ -1,8 +1,12 @@
 package handlers
 
-import "net/http"
+import (
+	"net/http"
 
-func HandlersSetup() {
+	"github.com/alejandrolaguna20/morph/state"
+)
+
+func HandlersSetup(s *state.State) {
 	http.HandleFunc("/hello", HelloWorldHandler)
-	http.HandleFunc("/url", PostShortenUrlHandler)
+	SetupURLHandlers(s)
 }
