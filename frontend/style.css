@@ -1,0 +1,25 @@
+@import url("https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css");
+
+#app{
+  font-size: 18px;
+  line-height: 150%;
+}
+
+h1, h2{
+  font-weight: 600;
+  font-size: 45px;
+  line-height: 110%;
+}
+
+h1{
+  font-size: 2.7rem;
+}
+
+h2{
+  font-size: 2rem;
+}
+
+.container{
+  max-width: 640px !important;
+  margin: 60px auto;
+}
