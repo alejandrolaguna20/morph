@@ -6,22 +6,22 @@ let shortenedUrl = '';
 
 function render() {
   app.innerHTML = `
-    <main class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div class="w-full max-w-md space-y-8">
+    <main class="min-h-screen flex items-center justify-center bg-gray-100 px-6">
+      <div class="w-full max-w-2xl space-y-12">
         <div class="text-center">
-          <h1 class="text-6xl font-bold text-gray-900 tracking-tight">morph</h1>
-          <p class="mt-2 text-sm text-gray-600">simple URL shortening</p>
+          <h1 class="text-8xl font-extrabold text-violet-900 tracking-tight">morph</h1>
+          <p class="mt-4 text-2xl text-gray-600">simple URL shortening</p>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <form id="shortenForm" class="space-y-4" ${isLoading ? 'aria-busy="true"' : ''}>
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-10 sm:p-12">
+          <form id="shortenForm" class="space-y-6" ${isLoading ? 'aria-busy="true"' : ''}>
             <div>
               <label for="urlInput" class="sr-only">Enter URL to shorten</label>
               <input
                 type="url"
                 id="urlInput"
                 placeholder="https://example.com/very-long-url"
-                class="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                class="w-full px-5 py-4 border border-gray-300 rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-violet-800 focus:border-transparent transition-all"
                 required
                 ${isLoading ? 'disabled' : ''}
               />
@@ -29,7 +29,7 @@ function render() {
 
             <button
               type="submit"
-              class="w-full bg-black text-white py-3 px-4 rounded-md hover:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full bg-violet-900 text-white py-4 px-6 rounded-2xl hover:bg-violet-800 focus:outline-none focus:ring-2 focus:ring-violet-800 focus:ring-offset-2 transition-all text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               ${isLoading ? 'disabled' : ''}
             >
               ${isLoading ? 'Shortening...' : 'Shorten URL'}
@@ -37,12 +37,12 @@ function render() {
           </form>
 
           ${shortenedUrl ? `
-            <div class="mt-6 pt-6 border-t border-gray-200">
-              <div class="flex items-center justify-between bg-gray-50 rounded-md p-3">
-                <span class="text-sm text-gray-900 font-mono truncate flex-1 mr-3">${shortenedUrl}</span>
+            <div class="mt-10 pt-6 border-t border-gray-200">
+              <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4 shadow-inner">
+                <span class="text-base text-gray-900 font-mono truncate flex-1 mr-4">${shortenedUrl}</span>
                 <button
                   id="copyBtn"
-                  class="flex-shrink-0 text-violet-600 hover:text-violet-700 text-sm font-medium focus:outline-none focus:underline"
+                  class="flex-shrink-0 text-violet-600 hover:text-violet-700 text-base font-medium focus:outline-none focus:underline transition-all"
                 >
                   Copy
                 </button>
@@ -51,8 +51,8 @@ function render() {
           ` : ''}
         </div>
 
-        <div class="text-center text-xs text-gray-500">
-          <p>free, fast, and simple URL shortening</p>
+        <div class="text-center text-lg text-gray-500">
+          <p>free, fast, and simple</p>
         </div>
       </div>
     </main>
@@ -85,16 +85,12 @@ async function handleSubmit(e) {
   render();
 
   try {
-    // simulates an api call
-    // TODO: implement api call
     await new Promise(resolve => setTimeout(resolve, 1000));
-
     const mockShortUrl = `https://morph.ly/${Math.random().toString(36).substr(2, 8)}`;
 
     shortenedUrl = mockShortUrl;
     isLoading = false;
     render();
-
   } catch (error) {
     isLoading = false;
     console.error('Error shortening URL:', error);
@@ -115,10 +111,10 @@ async function handleCopy() {
       copyBtn.textContent = originalText;
       copyBtn.classList.remove('text-green-600');
     }, 2000);
-
   } catch (error) {
     console.error('Failed to copy:', error);
   }
 }
 
 render();
+
