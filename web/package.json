@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve dist -s -l $PORT"
   },
   "devDependencies": {
     "vite": "^6.3.5"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.8",
+    "serve": "^14.2.4",
     "tailwindcss": "^4.1.8"
   }
 }
