@@ -20,7 +20,7 @@ type Env struct {
 func getEnvOrFatal(s string) string {
 	value := os.Getenv(s)
 	if value == "" {
-		log.Fatalf("Environment variable [%s] not set", s)
+		log.Fatalf("[ERROR] Environment variable [%s] not set", s)
 	}
 	return value
 }
@@ -28,7 +28,7 @@ func getEnvOrFatal(s string) string {
 func getEnvIntOrFatal(s string) int {
 	value, err := strconv.Atoi(getEnvOrFatal(s))
 	if err != nil {
-		log.Fatalf("Environment variable [%s] cannot be converted to int", s)
+		log.Fatalf("[ERROR] Environment variable [%s] cannot be converted to int", s)
 	}
 	return value
 }
@@ -38,7 +38,7 @@ func loadEnv() Env {
 	err := dotenv.Load()
 
 	if err != nil {
-		log.Fatal(".env file not loaded, aborting")
+		log.Fatal("[ERROR] .env file not loaded, aborting")
 	}
 
 	env.DatabaseHost = getEnvOrFatal("DB_HOST")

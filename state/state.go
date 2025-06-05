@@ -32,7 +32,7 @@ func LoadState() State {
 
 	db, err := connectToDatabase(&s)
 	if err != nil {
-		log.Fatal("Something went wrong when connecting to the database")
+		log.Fatal("[ERROR] Something went wrong when connecting to the database")
 	}
 
 	s.Database = db
