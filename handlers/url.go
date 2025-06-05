@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,49 +17,95 @@ type URLResponse struct {
 	NewToken    string `json:"new_token"`
 }
 
+var (
+	ErrInvalidURL    = errors.New("invalid URL format: not enough path segments")
+	ErrNotANumericID = errors.New("Not a numeric ID")
+	ErrNotFound      = errors.New("URL not found")
+)
+
+func isInteger(s string) bool {
+	_, err := strconv.ParseInt(s, 10, 64)
+	return err == nil
+}
+
 func SetupURLHandlers(s *state.State) {
 	http.HandleFunc("/url/", func(w http.ResponseWriter, r *http.Request) {
-		postShortenUrlHandler(s, w, r)
+		getShortenedURLHandler(s, w, r)
 	})
 }
 
-func getIDFromURL(path string) (int, error) {
-	path = strings.Trim(path, "/")
-	pathSections := strings.Split(path, "/")
+func getIDFromURL(idStr string) (int, error) {
 
-	if len(pathSections) < 2 {
-		return 0, errors.New("invalid URL format: not enough path segments")
+	if !isInteger(idStr) {
+		return 0, ErrNotANumericID
 	}
-
-	idStr := pathSections[len(pathSections)-1]
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return 0, fmt.Errorf("invalid ID format: %w", err)
+		return 0, ErrNotANumericID
 	}
 	return id, nil
 }
 
-func postShortenUrlHandler(s *state.State, w http.ResponseWriter, r *http.Request) {
+func findURLWithToken(token string, s *state.State) (URLResponse, error) {
 
-	if r.Method != http.MethodPost {
+	var url URLResponse
+	row := s.Database.QueryRow("SELECT id, original_url, new_token FROM urls WHERE new_token = ?", token)
+	err := row.Scan(&url.ID, &url.OriginalURL, &url.NewToken)
+
+	if err != nil {
+		err = ErrNotFound
+	}
+
+	return url, err
+}
+
+func findURLWithID(id int, s *state.State) (URLResponse, error) {
+	var url URLResponse
+	row := s.Database.QueryRow("SELECT id, original_url, new_token FROM urls WHERE id = ?", id)
+	err := row.Scan(&url.ID, &url.OriginalURL, &url.NewToken)
+
+	if err != nil {
+		err = ErrNotFound
+	}
+
+	return url, err
+}
+
+func getShortenedURLHandler(s *state.State, w http.ResponseWriter, r *http.Request) {
+
+	var searchByToken bool = false
+	var url URLResponse
+	var err error
+
+	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusBadRequest)
 		return
 	}
 
-	var url URLResponse
+	path := strings.Trim(r.URL.Path, "/")
+	pathSections := strings.Split(path, "/")
 
-	id, err := getIDFromURL(r.URL.Path)
-
-	if err != nil {
-		http.Error(w, "Wrong request path format", http.StatusBadRequest)
+	if len(pathSections) < 2 {
+		http.Error(w, "Bad request", http.StatusBadRequest)
 	}
 
-	row := s.Database.QueryRow("SELECT id, original_url, new_token FROM urls WHERE id = ?", id)
-	err = row.Scan(&url.ID, &url.OriginalURL, &url.NewToken)
+	idStr := pathSections[len(pathSections)-1]
+
+	id, err := getIDFromURL(idStr)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		searchByToken = true
+	}
+
+	if searchByToken {
+		url, err = findURLWithToken(idStr, s)
+	} else {
+		url, err = findURLWithID(id, s)
+	}
+
+	if err != nil {
+		if err == sql.ErrNoRows || err == ErrNotFound {
 			http.Error(w, "URL not found", http.StatusNotFound)
 			return
 		}
