@@ -55,7 +55,7 @@ func createOrUpdateRow(originalUrl string, s *state.State) (URLResponse, error) 
 		return urlResponse, ErrAlreadyExistingRow
 	}
 
-	if err != nil && err != sql.ErrNoRows {
+	if err != sql.ErrNoRows {
 		return urlResponse, err
 	}
 
