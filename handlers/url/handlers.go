@@ -2,6 +2,7 @@ package url
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -45,4 +46,33 @@ func GetShortenedURLHandler(s *state.State, w http.ResponseWriter, r *http.Reque
 	if err := json.NewEncoder(w).Encode(url); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
+}
+
+func PostShortenURL(s *state.State, w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var requestBody PostURLRequest
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+	if err != nil {
+		http.Error(w, "URL is missing", http.StatusBadRequest)
+		return
+	}
+
+	urlResponse, err := createOrUpdateRow(requestBody.URL, s)
+
+	if err != nil && !errors.Is(err, ErrAlreadyExistingRow) {
+		http.Error(w, "Could not store the URL to the database", http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-type", "application/json")
+
+	if errors.Is(err, ErrAlreadyExistingRow) {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+	json.NewEncoder(w).Encode(urlResponse)
 }

@@ -8,7 +8,14 @@ import (
 )
 
 func SetupURLHandlers(s *state.State) {
+
+	// GET /url/{id} or GET /url/{token}
 	http.HandleFunc("/url/", func(w http.ResponseWriter, r *http.Request) {
 		url.GetShortenedURLHandler(s, w, r)
+	})
+
+	// POST /url
+	http.HandleFunc("/url", func(w http.ResponseWriter, r *http.Request) {
+		url.PostShortenURL(s, w, r)
 	})
 }
